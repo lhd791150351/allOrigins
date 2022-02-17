@@ -3,11 +3,11 @@ const iconv = require('iconv-lite')
 
 module.exports = getPage
 
-function getPage({ url, format, requestMethod, charset }) {
+function getPage({ url, format, requestMethod, charset, data }) {
   if (format === 'info' || requestMethod === 'HEAD') {
     return getPageInfo(url)
   } else if (format === 'raw') {
-    return getRawPage(url, requestMethod, charset)
+    return getRawPage(url, requestMethod, charset, data)
   }
 
   return getPageContents(url, requestMethod, charset)
@@ -25,12 +25,13 @@ async function getPageInfo(url) {
   }
 }
 
-async function getRawPage(url, requestMethod, charset) {
+async function getRawPage(url, requestMethod, charset, data) {
   const { content, response, error } = await request(
     url,
     requestMethod,
     true,
-    charset
+    charset,
+    data
   )
   if (error) return processError(error)
 
@@ -63,18 +64,33 @@ async function getPageContents(url, requestMethod, charset) {
   }
 }
 
-async function request(url, requestMethod, raw = false, charset = null) {
+async function request(
+  url,
+  requestMethod,
+  raw = false,
+  charset = null,
+  data = {}
+) {
   try {
-    const options = {
+    let options = {
       method: requestMethod,
       decompress: !raw,
     }
-
+    if (Object.keys(data).length > 0) {
+      options = {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }
+    }
     const response = await got(url, options)
     if (options.method === 'HEAD') return { response }
 
     return processContent(response, charset)
   } catch (error) {
+    console.log(error)
     return { error }
   }
 }

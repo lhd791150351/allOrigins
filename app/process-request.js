@@ -39,6 +39,7 @@ function parseParams(req) {
     requestMethod: req.method,
     ...req.query,
     ...req.params,
+    data: req.body,
   }
   params.requestMethod = parseRequestMethod(params.requestMethod)
   params.format = (params.format || 'json').toLowerCase()
