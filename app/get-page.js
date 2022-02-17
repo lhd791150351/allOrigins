@@ -3,11 +3,11 @@ const iconv = require('iconv-lite')
 
 module.exports = getPage
 
-function getPage({ url, format, requestMethod, charset, data }) {
+function getPage({ url, format, requestMethod, charset, data, headers }) {
   if (format === 'info' || requestMethod === 'HEAD') {
     return getPageInfo(url)
   } else if (format === 'raw') {
-    return getRawPage(url, requestMethod, charset, data)
+    return getRawPage(url, requestMethod, charset, data, headers)
   }
 
   return getPageContents(url, requestMethod, charset)
@@ -19,19 +19,21 @@ async function getPageInfo(url) {
 
   return {
     url: url,
-    content_type: response.headers['content-type'],
-    content_length: +response.headers['content-length'] || -1,
+    content: '',
+    contentType: response.headers['content-type'],
+    contentLength: +response.headers['content-length'] || -1,
     http_code: response.statusCode,
   }
 }
 
-async function getRawPage(url, requestMethod, charset, data) {
+async function getRawPage(url, requestMethod, charset, data, headers) {
   const { content, response, error } = await request(
     url,
     requestMethod,
     true,
     charset,
-    data
+    data,
+    headers
   )
   if (error) return processError(error)
 
@@ -57,7 +59,7 @@ async function getPageContents(url, requestMethod, charset) {
     contents: content.toString(),
     status: {
       url: url,
-      content_type: response.headers['content-type'],
+      contentType: response.headers['content-type'],
       content_length: contentLength,
       http_code: response.statusCode,
     },
@@ -69,23 +71,30 @@ async function request(
   requestMethod,
   raw = false,
   charset = null,
-  data = {}
+  data = {},
+  headers = {}
 ) {
   try {
     let options = {
       method: requestMethod,
       decompress: !raw,
+      // headers,
+      headers: {
+        Accept: '*/*',
+      },
     }
-    if (Object.keys(data).length > 0) {
+    if (Object.keys(data).length > 0 && requestMethod === 'POST') {
       options = {
         ...options,
         headers: {
+          ...options.headers,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       }
     }
     const response = await got(url, options)
+
     if (options.method === 'HEAD') return { response }
 
     return processContent(response, charset)
@@ -115,7 +124,7 @@ async function processError(e) {
     status: {
       url,
       http_code,
-      content_type: headers['content-type'],
+      contentType: headers['content-type'],
       content_length: contentLength,
     },
   }

@@ -17,7 +17,6 @@ async function processRequest(req, res) {
   }
 
   const page = await getPage(params)
-
   return createResponse(page, params, res, startTime).then((resPage) => {
     logger.requestProcessed({
       format: params.format,
@@ -40,6 +39,7 @@ function parseParams(req) {
     ...req.query,
     ...req.params,
     data: req.body,
+    headers: req.headers,
   }
   params.requestMethod = parseRequestMethod(params.requestMethod)
   params.format = (params.format || 'json').toLowerCase()
