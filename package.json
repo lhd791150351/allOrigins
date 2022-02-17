@@ -8,10 +8,12 @@
   "scripts": {
     "test": "yarn prettier && jest --coverage ./app",
     "push": "vpdate && git push",
-    "prettier": "prettier -c ./test ./app"
+    "prettier": "prettier -c ./test ./app",
+    "build": "ncc build server.js -o dist"
   },
   "dependencies": {
     "@logdna/logger": "^2.3.2",
+    "@vercel/ncc": "^0.33.3",
     "agentkeepalive": "^4.1.3",
     "express": "^4.17.1",
     "got": "^11.8.2",
