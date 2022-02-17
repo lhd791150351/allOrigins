@@ -5,7 +5,7 @@
  */
 
 const app = require('./app.js')
-const port = process.env.PORT || 1458
+const port = process.env.PORT || 9000
 
 console.log(`Starting allOrigins v${global.AO_VERSION}`)
 app.listen(port, () => console.log('Listening on', port))

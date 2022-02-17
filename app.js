@@ -30,7 +30,6 @@ function enableCORS(req, res, next) {
 
 module.exports = (function app() {
   const app = express()
-
   app.set('case sensitive routing', false)
   app.set('jsonp callback name', 'callback')
   app.disable('x-powered-by')

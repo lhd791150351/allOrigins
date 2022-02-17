@@ -96,7 +96,6 @@ async function request(
     const response = await got(url, options)
 
     if (options.method === 'HEAD') return { response }
-
     return processContent(response, charset)
   } catch (error) {
     console.log(error)
