@@ -12,8 +12,8 @@ module.exports = function (debug = false) {
 
         return this.logger.log(data, {
           meta: {
-            to: to?.hostname,
-            from: from?.hostname || 'browser',
+            to: to?to.hostname:'',
+            from: from?from.hostname : 'browser',
           },
         })
       } catch (e) {
